@@ -2,6 +2,6 @@
 Dette er alt koden til vores teknikfagseksamensprojekt
 
 Foderautomat mappen indeholder koden til foderautomaten
-PlatformIO mappen indeholder koden til ESP'en / styreenheden
-
+\nPlatformIO mappen indeholder koden til ESP'en / styreenheden
+\nHjemmesiden er i hjemmeside mappen
 

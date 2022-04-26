@@ -1,0 +1,56 @@
+/* start iPad css values */
+.ipad #jim-ipad-mask { filter:alpha(opacity=50); }
+
+/* keyboard values */
+.ipad .portrait #jim-ios8-pad-kb #letters { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/letters_ipad.png'); }
+.ipad .portrait #jim-ios8-pad-kb #numbers { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/numbers_ipad.png'); }
+.ipad .portrait #jim-ios8-pad-kb #signs { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/symbols_ipad.png'); }
+
+.ipad .portrait #jim-ios8-pad-kb #letters .shiftLeft.caps { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyshift_pressed.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb #letters .shiftLeft.capsLock { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyshift_active.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb #letters .shiftRight.caps { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyshift_pressed_right.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb #letters .shiftRight.capsLock { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyshift_active_right.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb .backspace.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyerase_pressed.png'); behavior:none; width:60px; }
+.ipad .portrait #jim-ios8-pad-kb .return.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyreturn_pressed.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb .space.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyspace_pressed.png'); behavior:none; }
+.ipad .portrait #jim-ios8-pad-kb .exit.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/keyboard_pressed.png'); behavior:none; margin-left:2px; }
+.ipad .portrait #jim-ios8-pad-kb ul { width:769px; }
+.ipad .portrait #jim-ios8-pad-kb li.backspace { margin-left:0px; }
+.ipad .portrait #jim-ios8-pad-kb ul:first-child + ul + ul + ul { margin-top:5px; }
+.ipad .portrait #jim-ios8-pad-kb #numbers li.undo { width:125px; }
+.ipad .portrait #jim-ios8-pad-kb #signs li.redo { width:125px; }
+.ipad .portrait #jim-ios8-pad-kb li.pressed { position:relative; -pie-background: linear-gradient(to bottom, rgba(194, 196, 197, 0.5),rgba(194, 196, 197, 0.5)); behavior: url('./resources/jim/javascript/PIE.htc'); }
+
+
+.ipad .landscape #jim-ios8-pad-kb #letters { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/letters_ipad_landscape.png'); }
+.ipad .landscape #jim-ios8-pad-kb #numbers { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/numbers_ipad_landscape.png'); }
+.ipad .landscape #jim-ios8-pad-kb #signs { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/symbols_ipad_landscape.png'); }
+
+.ipad .landscape #jim-ios8-pad-kb #letters .shiftLeft.caps { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyshift_pressed.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb #letters .shiftLeft.capsLock { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyshift_active.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb #letters .shiftRight { margin-left:-1px; }
+.ipad .landscape #jim-ios8-pad-kb #letters .shiftRight.caps { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyshift_pressed_right.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb #letters .shiftRight.capsLock { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyshift_active_right.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb .backspace.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyerase_pressed.png'); behavior:none; margin-left:1px;}
+.ipad .landscape #jim-ios8-pad-kb .return.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyreturn_pressed.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb .space.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyspace_pressed.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb .exit.pressed { background-image:url('../../../../../images/mobile/ios/ios8/ipad/landscape/keyboard_pressed.png'); behavior:none; }
+.ipad .landscape #jim-ios8-pad-kb ul { width:1025px; }
+.ipad .landscape #jim-ios8-pad-kb li.exit { margin-left:3px; }
+.ipad .landscape #jim-ios8-pad-kb li.pressed { position:relative; -pie-background: linear-gradient(to bottom, rgba(194, 196, 197, 0.5),rgba(194, 196, 197, 0.5)); behavior: url('./resources/jim/javascript/PIE.htc'); }
+
+/* dropdown values */
+.ipad #jim-ios8-pad-dd { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/dropdown_top.png'); }
+.ipad #jim-ios8-pad-dd .dd_options .options .tick { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/tick.png'); }
+
+/* date values */
+.ipad #jim-ios8-pad-da { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/date.png'); }
+.ipad #jim-ios8-pad-da .jim-ipad-da_mask { background-image: url('../../../../../images/mobile/ios/ios8/ipad/portrait/dategradient.png'); }
+
+/* time values */
+.ipad #jim-ios8-pad-ti { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/time.png'); }
+.ipad #jim-ios8-pad-ti .jim-ipad-ti_mask { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/dategradient.png'); }
+
+/* date & time values */
+.ipad #jim-ios8-pad-dt { background-image:url('../../../../../images/mobile/ios/ios8/ipad/portrait/datetime.png'); }
+.ipad #jim-ios8-pad-dt .jim-ipad-dt_mask { background-image: url('../../../../../images/mobile/ios/ios8/ipad/portrait/dategradient.png'); }

@@ -1,0 +1,26 @@
+{
+    "UF6638639": {
+        "fodertidspunkter": [
+        60,
+        180,
+        300,
+        1000
+        ],
+        "doseringer": 1,
+        "lastseen": "22-03-2022T18:20:09",
+        "problem": true,
+        "problemtext": "Kan ikke oprette forbindelse"
+    },
+    "UF7139367": {
+        "fodertidspunkter": [
+        60,
+        180,
+        300,
+        1000
+        ],
+        "doseringer": 1,
+        "lastseen": "22-03-2022T18:20:09",
+        "problem": false,
+        "problemtext": null
+    }
+}

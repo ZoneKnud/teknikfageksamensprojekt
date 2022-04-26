@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>weFeed foderautomat</title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <link rel="stylesheet" href="/clockpicker.css">
+
+    <style>
+        body,html {
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            margin: 8px;
+        }
+
+        header {
+            min-height: 95px;
+            width: 100%;
+            background-color: #4C7153;
+            display: inline-block;
+            padding: 9px;
+        }
+        header h1 {
+            font-size: 2rem;
+            display: inline-block;
+            margin-top: 16px;
+            margin-left: 20px;
+        }
+        header button {
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            border-radius: 8px;
+            background-color: #91E793;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            float: right;
+            margin-top: 7px;
+            margin-right: 20px;
+            color: black;
+        }
+        table {
+            width: 100%;
+            font-size: 1.2rem;
+        }
+        table td {
+            padding-top: 10px;
+            border-top: 1px #dddddd;
+            border-bottom: 1px rgb(163 163 163 / 59%) solid;
+        }
+        table th {
+            font-size: 1.4rem;
+        }
+        .tdid {
+            font-size: 0.8rem;
+            display: block;
+        }
+        .doseringer {
+            min-width: 230px;
+            text-align: center;
+        }
+        .fodringer {
+            min-width: 180px;
+            text-align: center;
+        }
+        .next {
+            min-width: 160px;
+            text-align: center;
+        }
+        .pull-center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        td:first-child {
+            cursor: pointer;  
+        }
+
+
+        @media screen and (max-width: 600px) {
+            .doseringer {
+                display: none;
+            }
+        }
+        @media screen and (max-width: 766px) {
+            .fodringer {
+                display: none;
+            }
+        }
+        #tidspunktKnap {
+            position: fixed;
+            top: 364px;;
+            margin-left: 3rem!important;
+        }
+        @media screen and (min-width: 576px) {
+            #tidspunktKnap {
+                top: 384px;
+                margin-left: 6rem!important;
+            }
+        }
+        @media screen and (min-width: 768px) {
+            #tidspunktKnap {
+                top: 298px;
+                margin-left: 6rem!important;
+            }
+        }
+
+        .errormessage {
+            font-size: 1.3rem;
+            color: red;
+            font-weight: 500;
+        }
+        .sucessmessage {
+            font-size: 1.3rem;
+            color: #4BB543;
+            font-weight: 500;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="modals">
+
+    </div>
+    <header>
+        <h1 id="clock"></h1>
+        <button type="button" data-toggle="modal" data-target="#addModal">Tilføj</button>        
+    </header>
+    <main>
+        <div id="container">
+            <table id="table">
+                <tr>
+                  <th>Hest</th>
+                  <th class="next">Næste fodring</th>
+                  <th class="doseringer">Doseringer pr. fodring</th>
+                  <th class="fodringer">Fodringer pr. dag</th>
+                </tr>
+            </table>
+
+            <!-- EDIT Modal -->
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">ID-1234</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <span class="errormessage"></span>
+                        <span class="sucessmessage"></span>
+                        <div class="form-row">
+                            <div class="form-group col-md-7 col-sm-12">
+                                <label for="editNavn">Navn</label>
+                                <input type="text" class="form-control" id="editNavn" placeholder="" value="">
+                            </div>
+                            <div class="form-group col-md-5 col-sm-12">
+                                <label for="editDoseringer">Doseringer pr. fodring</label>
+                                <select class="form-control" id="editDoseringer">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                            
+                        </div>
+                        <label class="mt-4">Fodertidspunkter</label>
+                        <button type="button" class="btn btn-primary" id="tidspunktKnap" onclick="">Tilføj tidspunkt</button>
+                        <button type="button" class="btn btn-primary ml-3" id="tidspunktKnap2" onclick="">Tilføj tidspunkt</button>
+                        <div id="fodertidspunkter" class="form-group">
+                            <div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true" style="width:70px;">
+                                <input type="text" class="form-control" value="00:00">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <form action="/manual" method="POST">
+                            <input type="hidden" value="" id="manualInputID" name="manualInputID">
+                            <button type="submit" id="manuelSubmit" class="btn btn-success mr-auto" style="height: 38px;margin-bottom: 10px;float: right;">Manuel</button>
+                        </form>
+                        
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger mr-auto" data-toggle="modal" data-target="#deleteModal" onclick="$('#editModal').modal('hide')">Slet</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Luk</button>
+                        <button type="button" class="btn btn-primary" onclick="" id="editSave">Gem ændringer</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- TILFØJ Modal -->
+            <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Tilføj Foderautomat</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <form action="/add" method="post">
+                        <div class="modal-body">
+                            <span class="errormessage"></span>
+                            <div>
+                                <label for="addInput">Foderautomat ID</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">ID -</div>
+                                    </div>
+                                    <input type="number" class="form-control" id="addInputID" name="addInputID" aria-describedby="idHelp" placeholder="24680" required>
+                                </div>
+                                <small id="idHelp" class="form-text text-muted">Foderautomatens ID står på siden</small>
+                                
+                            </div>                
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuller</button>
+                            <button type="submit" class="btn btn-primary">Tilføj</button>
+                        </div>
+                    </form>
+                </div>
+                </div>
+            </div>
+
+            <!-- DELETE Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <!-- <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">ID-1234</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div> -->
+                    <div class="modal-body">
+                        <h3 id="deleteText"></h3>
+                        <span class="errormessage"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <form action="/delete" method="post">
+                            <input type="hidden" id="deleteID" name="deleteID" value="">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuller</button>
+                            <button type="submit" class="btn btn-danger">Slet</button>
+                        </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            
+        </div>
+    </main>
+    
+</body>
+<script src="/jquery.js"></script>
+<script src="/bootstrap.min.js"></script>
+<script src="/clockpicker.js"></script>
+
+<script>
+    window.onload = function() {
+        getData();
+        startTime();
+    };
+
+
+    $("form").on("submit", function (e) {
+        e.preventDefault();
+
+        var dataString = $(this).serialize();
+
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'),
+            data: dataString,
+            success: function () {
+                getData();
+                $('.modal').modal('hide');
+                if ($(this).attr('action') == "/add") {
+                    showEdit($('#addInputID').val());
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $(".errormessage").html("Der opstod en fejl:<br>" + thrownError);
+            }
+        });
+
+
+    });
+
+    $('.clockpicker').clockpicker()
+	.find('input').change(function(){
+		// TODO: time changed
+		console.log(this.value);
+	});
+
+    var data = 
+    {
+        "tid":1649527109,
+        "foderautomater": [
+            {
+                "id": "1234",
+                "n": "Valoo",
+                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],
+                "d": 1
+            },
+            {
+                "id": "237593",
+                "n": "Mac attack",
+                "f": [11,12,13,14,15,16,17,18,19,20],
+                "d": 1
+            },
+            {
+                "id": "238763",
+                "n": "Mads fra Mads og Mikkel",
+                "f": [11,12,13,14,15,16,17,18,19,20],
+                "d": 1
+            },
+            {
+                "id": "198242835",
+                "n": "Skovkrogens bandine",
+                "f": [46],
+                "d": 2
+            },
+            {
+                "id": "8355",
+                "n": "Nørrelundgårds Don Copy Cat",
+                "f": [],
+                "d": 2
+            }
+        ]
+    };
+
+    var tidModtaget = Date.now()/1000;
+    // var tidModtaget = data["tid"];
+    var tidVedModtaget = Math.floor(Date.now() / 1000);
+    // var tidModtaget = 0;
+    // var tidVedModtaget = 0;
+
+    // var data = %JSONPLACEHOLDER%;
+
+    function getData(id) {
+        $.getJSON('/getdata', function(jsondata) {
+        data = jsondata
+        tidModtaget = data["tid"] - 7200;
+        tidVedModtaget = Math.floor(Date.now() / 1000);
+
+        }).always(function(id) { 
+            showData();
+            if($('#editModal').hasClass('in')) {
+                showEdit(id);
+            }
+        });
+    }
+
+    
+    $('.modal').on('hidden.bs.modal', function (e) {
+        $(".errormessage").html("");
+        $('#addInputID').val("");
+    })
+
+    
+
+    function timeNow() {
+        // Tid nu = udgangspunkt + (millis() - Millis ved udgangspunkt)
+        if(tidModtaget == 0) {
+            return 0;
+        }
+        return tidModtaget + ((Math.floor(Date.now() / 1000)) - tidVedModtaget);
+    }
+
+    function nextFeed(fodertidspunkter) {
+        var feedCount = Object.keys(fodertidspunkter).length;
+
+        var previous;
+
+        for(var i = 0; i < feedCount; i++){
+            var tmpTimeNow = new Date(timeNow()*1000);
+            hourNow = tmpTimeNow.getHours();
+            minutesNow = "0" + tmpTimeNow.getMinutes();
+            minutesNow = minutesNow.substr(-2);
+
+            time30Now = hourNow * 2;
+            if(minutesNow >= 30) {
+                time30Now++;
+            }
+
+            if(fodertidspunkter[i] > previous && fodertidspunkter[i] > time30Now) {
+                // console.log("Næste tid er: " + fodertidspunkter[i]);
+                return time30ToTime(fodertidspunkter[i]);
+            }
+            
+            previous = fodertidspunkter[i];
+        }
+
+        // console.log("Næste tid er: " + fodertidspunkter[0]);
+        return time30ToTime(fodertidspunkter[0]);
+    }
+
+    
+
+    function showEdit(id) {
+        var count = Object.keys(data["foderautomater"]).length;
+        var fodertidspunkter = document.getElementById('fodertidspunkter');
+        fodertidspunkter.innerHTML = "";
+
+        for(var i=0;i<count;i++){
+            //console.log(jsonObj.myObject[i]);
+            var obj = data["foderautomater"][i];
+
+            if(obj.id == id) {
+                $('#deleteID').val(id);
+                $('#deleteText').html("Er du sikker på at du vil slette foderautomat ID-" + id + "?")
+                $('#editModalLabel').html("ID-" + id);
+                $('#editNavn').val(obj.n);
+                $('#editDoseringer').val(obj.d);
+                $(".errormessage").html("");
+                $("#editSave").attr('onclick', 'sendEditData(' + id + ');');
+                $("#tidspunktKnap").attr('onclick', 'addTime(' + id + ');');
+                $("#tidspunktKnap2").attr('onclick', 'addTime(' + id + ');');
+                $("#manualInputID").val(id);
+                
+
+
+                // Fodertidspunkter
+                var feedCount = Object.keys(obj["f"]).length;
+                // console.log("feedCount: " + feedCount);
+                // console.log(obj["fodertidspunkter"]);
+
+                if(feedCount > 0) {
+                    // Hver der er mere end 0
+                    $('#tidspunktKnap2').css('display', 'none');
+                    $('#tidspunktKnap').css('display', '');
+                } else {
+                    // Hver der er 0
+                    $('#tidspunktKnap2').css('display', '');
+                    $('#tidspunktKnap').css('display', 'none');
+                }
+
+                var cell = "";
+                
+                for(var x = 0; x < feedCount; x++){
+                    //console.log("i: " + x);
+                    var time = time30ToTime(obj["f"][x]);
+
+                    cell = '<div class="form-row mb-3">\
+                                <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
+                                    <input type="text" class="form-control fodertidspunkt" onkeydown="return false" onfocus="blur()" style="width:80px;" value="' + time + '">\
+                                    <span class="input-group-addon">\
+                                        <span class="glyphicon glyphicon-envelope"></span>\
+                                    </span>\
+                                </div>\
+                                <button type="button" class="btn btn-danger ml-4" onclick="deleteTime(' + id + ',' + x + ')">X</button>\
+                            </div>';
+                    fodertidspunkter.innerHTML+=cell;
+                    
+                }
+                $('.clockpicker').clockpicker()
+                .find('input').change(function(){
+                    // TODO: time changed
+                    console.log(this.value);
+                });
+
+                $('#editModal').modal('show');
+            }
+        }        
+    }
+
+    function deleteTime(id, index) {
+        var count = Object.keys(data["foderautomater"]).length;
+        var fodertidspunkter = document.getElementById('fodertidspunkter');
+        // fodertidspunkter.innerHTML = "";
+
+        for(var i=0;i<count;i++){
+            //console.log(jsonObj.myObject[i]);
+            var obj = data["foderautomater"][i];
+
+            if(obj.id == id) {
+                $('#fodertidspunkter').find('input').each(function () {
+                    console.log(this.value); // "this" is the current element in the loop
+                    obj.f.push(timeToTime30(this.value));
+                });
+                // https://www.w3schools.com/js/js_array_sort.asp
+                obj.f.sort(function(a, b){return a - b});
+
+                obj.f = removeDuplicates(obj.f);
+
+                // Fjern fodertidspunkt 
+                obj.f.splice(index, 1);
+
+                data["foderautomater"][i] = obj;
+
+                // Nuværende tidspunkter er tilføjet!
+
+                var feedCount = Object.keys(obj["f"]).length;
+                console.log("feedCount: " + feedCount);
+
+                if(feedCount > 0) {
+                    // Hver der er mere end 0
+                    $('#tidspunktKnap2').css('display', 'none');
+                    $('#tidspunktKnap').css('display', '');
+                } else {
+                    // Hver der er 0
+                    $('#tidspunktKnap2').css('display', '');
+                    $('#tidspunktKnap').css('display', 'none');
+                }
+
+                fodertidspunkter.innerHTML = "";
+                
+                for(var x = 0; x < feedCount; x++){
+                    //console.log("i: " + x);
+                    var time = time30ToTime(obj["f"][x]);
+
+                    var cell = '<div class="form-row mb-3">\
+                                <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
+                                    <input type="text" class="form-control fodertidspunkt" onkeydown="return false" onfocus="blur()" style="width:80px;" value="' + time + '">\
+                                    <span class="input-group-addon">\
+                                        <span class="glyphicon glyphicon-envelope"></span>\
+                                    </span>\
+                                </div>\
+                                <button type="button" class="btn btn-danger ml-4" onclick="deleteTime(' + id + ',' + x + ')">X</button>\
+                            </div>';
+                    fodertidspunkter.innerHTML+=cell;
+                    
+                }
+            }
+        }
+    }
+
+    function addTime(id) {
+        var count = Object.keys(data["foderautomater"]).length;
+        var fodertidspunkter = document.getElementById('fodertidspunkter');
+        // fodertidspunkter.innerHTML = "";
+        $('#tidspunktKnap2').css('display', 'none');
+        $('#tidspunktKnap').css('display', '');
+
+        for(var i=0;i<count;i++){
+            //console.log(jsonObj.myObject[i]);
+            var obj = data["foderautomater"][i];
+
+            if(obj.id == id) {
+                console.log("ID fundet!");
+                $('#fodertidspunkter').find('input').each(function () {
+                    console.log(this.value); // "this" is the current element in the loop
+                    obj.f.push(timeToTime30(this.value));
+                });
+                // https://www.w3schools.com/js/js_array_sort.asp
+                obj.f.sort(function(a, b){return a - b});
+
+                obj.f = removeDuplicates(obj.f);
+
+                data["foderautomater"][i] = obj;
+
+                // Nuværende tidspunkter er tilføjet!
+
+                var feedCount = Object.keys(obj["f"]).length;
+                console.log("feedCount: " + feedCount);
+
+                if(feedCount > 0) {
+                    // Hver der er mere end 0
+                    $('#tidspunktKnap2').css('display', 'none');
+                    $('#tidspunktKnap').css('display', '');
+                } else {
+                    // Hver der er 0
+                    $('#tidspunktKnap2').css('display', '');
+                    $('#tidspunktKnap').css('display', 'none');
+                }
+
+                fodertidspunkter.innerHTML = "";
+                
+                for(var x = 0; x < feedCount; x++){
+                    //console.log("i: " + x);
+                    var time = time30ToTime(obj["f"][x]);
+
+                    var cell = '<div class="form-row mb-3">\
+                                <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
+                                    <input type="text" class="form-control fodertidspunkt" onkeydown="return false" onfocus="blur()" style="width:80px;" value="' + time + '">\
+                                    <span class="input-group-addon">\
+                                        <span class="glyphicon glyphicon-envelope"></span>\
+                                    </span>\
+                                </div>\
+                                <button type="button" class="btn btn-danger ml-4" onclick="deleteTime(' + id + ',' + x + ')">X</button>\
+                            </div>';
+                    fodertidspunkter.innerHTML+=cell;
+                    
+                }
+
+
+            }
+        }
+        
+        var cell = '<div class="form-row mb-3">\
+                    <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
+                        <input type="text" class="form-control fodertidspunkt" onkeydown="return false" onfocus="blur()" style="width:80px;" value="00:00">\
+                        <span class="input-group-addon">\
+                            <span class="glyphicon glyphicon-envelope"></span>\
+                        </span>\
+                    </div>\
+                    <button type="button" class="btn btn-danger ml-4" onclick="deleteTime(' + id + ',' + x + ')">X</button>\
+                </div>';
+        fodertidspunkter.innerHTML+=cell;
+        $('#editModal').animate({ scrollTop: $(document).height() }, 500); // Scroll til bunden af modal.
+        $('.clockpicker').clockpicker()
+        .find('input').change(function(){
+            // TODO: time changed
+            console.log(this.value);
+        });
+    }
+
+    function showData() {
+        var count = Object.keys(data["foderautomater"]).length;
+
+        var table= document.getElementById('table');
+        table.innerHTML = '<tr><th>Hest</th><th class="next">Næste fodring</th><th class="doseringer">Doseringer pr. fodring</th><th class="fodringer">Fodringer pr. dag</th></tr>';
+        for(var i=0;i<count;i++){
+            //console.log(jsonObj.myObject[i]);
+            var obj= data["foderautomater"][i];
+            var feedCount = String(obj["f"].length);
+            // console.log(feedCount);
+            // var cell = "<div class='cell'>" + obj.id + "<br>" + obj.n + "<br>" + feedCount + "</div>"
+            if(obj.n == "") {
+                obj.n = "ID-" + obj.id;
+            }
+            if(obj["f"].length > 0) {
+                // Hver der er mere end 0
+                $('#tidspunktKnap2').css('display', 'none');
+                $('#tidspunktKnap').css('display', '');
+                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "<span class='tdid'>ID-" + obj.id + "</span></td><td class='next'>" + nextFeed(obj["f"]) + "</td><td class='doseringer'>" + obj.d + "</td><td class='fodringer'>" + feedCount + "</td"
+            } else {
+                // Hver der er 0
+                $('#tidspunktKnap2').css('display', '');
+                $('#tidspunktKnap').css('display', 'none');
+                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "<span class='tdid'>ID-" + obj.id + " </span></td><td class='next'></td><td class='doseringer'>" + obj.d + "</td><td class='fodringer'>" + feedCount + "</td"
+            }
+            table.innerHTML+=cell;
+        }
+    }
+
+    function time30ToTime(time30) {
+        if(time30 % 2 == 0) { // Hvis den halve time er lige.
+            if(time30 / 2 > 9) {
+                return ((time30) / 2) + ":00";
+            } else {
+                return "0" + ((time30) / 2) + ":00";
+            }
+        
+        } else { // Hvis den er ulige.
+            if(  ((time30 - 1) / 2) > 9) {
+                return ((time30 -1) / 2) + ":30";
+            } else {
+                return "0" + ((time30 -1) / 2) + ":30";
+            }
+        }
+    }
+
+    function timeToTime30(time) {
+        time = time.split(":");
+        
+        var time30 = time[0] * 2;
+        if(time[1] >= 30) {
+            time30++;
+        }
+        console.log(time30);
+        return time30;
+    }
+
+    function removeDuplicates(arr) {
+        var unique = [];
+        arr.forEach(element => {
+            if (!unique.includes(element)) {
+                unique.push(element);
+            }
+        });
+        return unique;
+    }
+
+    function startTime() {
+        const today = new Date(timeNow()*1000);
+        let h = today.getHours();
+        let m = today.getMinutes();
+        let s = today.getSeconds();
+        if (m < 10) {m = "0" + m};
+        document.getElementById('clock').innerHTML =  h + ":" + m;
+        setTimeout(startTime, 1000);
+    }
+
+    function sendEditData(id) {
+        var count = Object.keys(data["foderautomater"]).length;
+        for(var i=0;i<count;i++){
+            //console.log(jsonObj.myObject[i]);
+            var obj = data["foderautomater"][i];
+
+            if(obj.id == id) {
+                
+                obj.n = $('#editNavn').val();
+                obj.d = $('#editDoseringer').val();
+                obj.f = [];
+
+                $('#fodertidspunkter').find('input').each(function () {
+                    console.log(this.value); // "this" is the current element in the loop
+                    obj.f.push(timeToTime30(this.value));
+                });
+                // https://www.w3schools.com/js/js_array_sort.asp
+                obj.f.sort(function(a, b){return a - b});
+
+                obj.f = removeDuplicates(obj.f);
+                
+
+                $.ajax({
+                    type: "POST",
+                    url: "/edit",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json",
+                    dataType: "text",
+                    success: function(data){
+                        getData();
+                        $(".errormessage").html("");
+                        $(".sucessmessage").html("Foderautomat er opdateret!");
+                        setTimeout($(".sucessmessage").html(""), 5000);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('#editModal').animate({ scrollTop: 0 }, 500);
+                        $(".sucessmessage").html("");
+                        $(".errormessage").html("Der opstod en fejl:<br>" + thrownError);
+
+                    }
+                });
+            }
+        }
+    }
+
+    function updateTime() {
+        let time = Math.floor(new Date().getTime()/1000.0 + 7200)
+
+        timedata = {
+            "time":time
+        }
+
+        console.log(timedata);
+        console.log(timedata["time"]);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/updatetime", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(timedata));
+    }
+
+    //check if the number is even
+    // if(x % 2 == 0) {
+    //     console.log("even");
+    //     cell = '<div class="form-row">\
+    //                     <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
+    //                         <input type="text" class="form-control" onkeydown="return false" onfocus="blur()" name="fodertidspunkter[]" style="width:66px;" value="' + time + '">\
+    //                         <span class="input-group-addon">\
+    //                             <span class="glyphicon glyphicon-envelope"></span>\
+    //                         </span>\
+    //                     </div>';
+    
+    // } else {
+    //     console.log("uneven")
+    //     cell += '<div class="clockpicker" data-placement="left" data-align="bottom" data-autoclose="true">\
+    //                     <input type="text" class="form-control" onkeydown="return false" onfocus="blur()" name="fodertidspunkter[]" style="width:66px;" value="' + time + '">\
+    //                     <span class="input-group-addon">\
+    //                         <span class="glyphicon glyphicon-envelope"></span>\
+    //                     </span>\
+    //                 </div>\
+    //             </div>';
+    //     fodertidspunkter.innerHTML+=cell;
+    // }
+    // function sendData() {
+
+    //     var xhr = new XMLHttpRequest();
+    //     xhr.open("POST", "/post2", true);
+    //     xhr.setRequestHeader('Content-Type', 'application/json');
+    //     xhr.send(JSON.stringify({
+    //         data: data
+    //     }));
+    // }
+
+</script>
+</html>

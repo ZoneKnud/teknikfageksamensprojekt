@@ -368,7 +368,8 @@
             previous = fodertidspunkter[i];
         }
 
-        // Hvis funktionen når hertil betyder det at det første fodertidspunkt (fodertidspunkter[0]) er det næste.
+        // Hvis funktionen når hertil betyder det at det første fodertidspunkt 
+        // (fodertidspunkter[0]) er det næste. Dette er fordi prevous er null i starten
         return time30ToTime(fodertidspunkter[0]);
     }
 
@@ -459,19 +460,15 @@
                 // ID er fundet.
 
                 obj.f = [];
-
                 // Finder alle fodertidspunkters input value og konverterer det til time30
                 $('#fodertidspunkter').find('input').each(function () {
                     console.log(this.value); // "this" is the current element in the loop
                     obj.f.push(timeToTime30(this.value));
                 });
-                console.log(obj.f);
-
                 // Fjerner fodertidspunktet 
                 obj.f.splice(index, 1);
 
                 // Sorterer nuværende fodertidspunkter så alt ser godt ud i UI
-                
                 // https://www.w3schools.com/js/js_array_sort.asp
                 // Sorterer fodertidspunkter så de er i fra laveste til højeste time30.
                 obj.f.sort(function(a, b){return a - b});

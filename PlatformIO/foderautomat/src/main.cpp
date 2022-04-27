@@ -355,7 +355,7 @@ void setup(){
             jsonData += id;
             jsonData += "'}";
 
-            sendData(jsonData, false); // Tilføj til global variabel. Data bliver send i loop() funktionen. Se loop()
+            sendData(jsonData, false); 
 
             request->send(200, "text/plain", "Foderautomat er aktiveret!");
             
@@ -380,7 +380,8 @@ void setup(){
             // for-loop med alle nuværende foderautomater for at se om den allerede er i systemet.
             for (JsonVariant value : foderautomater) {
                 // Serial.println(value["id"].as<String>().c_str());
-                if(value["id"].as<String>() == id) { // Hvis den nuværende foderautomat har samme ID som den som prøves at tilføjes.
+                if(value["id"].as<String>() == id) { 
+                    // Hvis den nuværende foderautomat har samme ID som den som prøves at tilføjes.
                     request->send(400, "text/plain", "Foderautomat findes allerede!");
                     return;
                 }

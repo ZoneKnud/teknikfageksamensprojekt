@@ -92,18 +92,18 @@
         }
         #tidspunktKnap {
             position: fixed;
-            top: 364px;;
+            top: 316px;;
             margin-left: 3rem!important;
         }
         @media screen and (min-width: 576px) {
             #tidspunktKnap {
-                top: 384px;
+                top: 336px;
                 margin-left: 6rem!important;
             }
         }
         @media screen and (min-width: 768px) {
             #tidspunktKnap {
-                top: 298px;
+                top: 250px;
                 margin-left: 6rem!important;
             }
         }
@@ -237,12 +237,6 @@
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <!-- <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">ID-1234</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div> -->
                     <div class="modal-body">
                         <h3 id="deleteText"></h3>
                         <span class="errormessage"></span>
@@ -268,39 +262,38 @@
 <script src="/clockpicker.js"></script>
 
 <script>
+    // Når websiden indlæses kald funktioner:
     window.onload = function() {
         getData();
         startTime();
     };
 
-
+    // Når en form bliver submitted. Stop den og gør det asynkront med jQuery Ajax i stedet.
     $("form").on("submit", function (e) {
-        e.preventDefault();
-
-        var dataString = $(this).serialize();
-
+        e.preventDefault(); // Stop afsendelse af data standard.
+        var dataString = $(this).serialize(); // serialize form-data
+        // Lav POST request med jQuery Ajax.
         $.ajax({
             type: "POST",
             url: $(this).attr('action'),
             data: dataString,
-            success: function () {
-                getData();
-                $('.modal').modal('hide');
-                if ($(this).attr('action') == "/add") {
-                    showEdit($('#addInputID').val());
+            success: function () { // Hvis sucess:
+                getData(); // Hent dent opdaterede data
+                $('.modal').modal('hide'); // Luk modal
+                if ($(this).attr('action') == "/add") { // Hvis request var til /add
+                    showEdit($('#addInputID').val()); // vis redigeringsmodal for den nye foderautomat.
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
-                $(".errormessage").html("Der opstod en fejl:<br>" + thrownError);
+                // Hvis fejl hvis der opstod en fejl.
+                $(".errormessage").html("Der opstod en fejl:<br>" + thrownError); 
             }
         });
 
-
     });
-
+    // Ved opsætning. Indstil alle clockpicker ure.
     $('.clockpicker').clockpicker()
 	.find('input').change(function(){
-		// TODO: time changed
 		console.log(this.value);
 	});
 
@@ -311,7 +304,7 @@
             {
                 "id": "1234",
                 "n": "Valoo",
-                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],
+                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],
                 "d": 1
             },
             {
@@ -341,6 +334,7 @@
         ]
     };
 
+    // Til debug:::
     var tidModtaget = Date.now()/1000;
     // var tidModtaget = data["tid"];
     var tidVedModtaget = Math.floor(Date.now() / 1000);
@@ -349,28 +343,34 @@
 
     // var data = %JSONPLACEHOLDER%;
 
+    // Funktionen indlæser JSON data fra ESP'en
     function getData(id) {
+        // Funktionen bruger jQuerys indbyggede getJSON, -
+        // som laver en GET request til serveren og laver dataen om til et JSONobject.
         $.getJSON('/getdata', function(jsondata) {
         data = jsondata
+        // Trækker dansk tidszone fra på 3 timer = 7200 sekunder 
+        // for at få UTC som JavaScript kører ud fra.
         tidModtaget = data["tid"] - 7200;
-        tidVedModtaget = Math.floor(Date.now() / 1000);
+        tidVedModtaget = Math.floor(Date.now() / 1000); // Opdaterer tidVedModtaget -
+        // for senere at kunne regne den fremtidige tid ud.
 
-        }).always(function(id) { 
-            showData();
-            if($('#editModal').hasClass('in')) {
-                showEdit(id);
+        }).always(function(id) { // Uanset om der er success eller error:
+            showData(); // Hvis data
+            if($('#editModal').hasClass('in')) { // Hvis der er i gang med at regigere i en foderautomat.
+                showEdit(id); // Hvis den med nyt data.
             }
         });
     }
 
-    
+    // Hvis en modal bliver lukket:
     $('.modal').on('hidden.bs.modal', function (e) {
-        $(".errormessage").html("");
-        $('#addInputID').val("");
+        $(".errormessage").html(""); // Fjern eventuel fejlkode
+        $('#addInputID').val(""); // Fjern tilføjelses ID value.
     })
 
     
-
+    // Funktionen returnerer den nuværende tid baseret på tiden da ESP'ens data blev modtaget. Den er identisk med en i Arduinokoden
     function timeNow() {
         // Tid nu = udgangspunkt + (millis() - Millis ved udgangspunkt)
         if(tidModtaget == 0) {
@@ -379,46 +379,55 @@
         return tidModtaget + ((Math.floor(Date.now() / 1000)) - tidVedModtaget);
     }
 
+    // Funktionen returnerer det næste fodertidspunktet i formatet 00:00 ved brug af time30ToTime.
     function nextFeed(fodertidspunkter) {
         var feedCount = Object.keys(fodertidspunkter).length;
 
         var previous;
 
+        var tmpTimeNow = new Date(timeNow()*1000);
+        // Konverterer den nuværende tid til time30 format.
+        hourNow = tmpTimeNow.getHours();
+        minutesNow = "0" + tmpTimeNow.getMinutes();
+        minutesNow = minutesNow.substr(-2); // Tager de sidste to chars i listen.
+        time30Now = hourNow * 2;
+        if(minutesNow >= 30) {
+            time30Now++;
+        }
+        // Tid er konverteret nu.
+
+        // Går alle fodertidspunkter igennem for en foderautomat.
         for(var i = 0; i < feedCount; i++){
-            var tmpTimeNow = new Date(timeNow()*1000);
-            hourNow = tmpTimeNow.getHours();
-            minutesNow = "0" + tmpTimeNow.getMinutes();
-            minutesNow = minutesNow.substr(-2);
-
-            time30Now = hourNow * 2;
-            if(minutesNow >= 30) {
-                time30Now++;
-            }
-
+            // Tjekker om fodertidspunkter[i] er større end fodertidspunkter[i - 1] 
+            // og om fodertidspunkter[i] er større end time30Now.
             if(fodertidspunkter[i] > previous && fodertidspunkter[i] > time30Now) {
-                // console.log("Næste tid er: " + fodertidspunkter[i]);
+                // Hvis disse betingelser er sande betyder det at det næste -
+                // fodertidspunkt er fodertidspunkter[i].
+                // Bruger time30ToTime for at lave time30 til et læseligt format 00:00.
                 return time30ToTime(fodertidspunkter[i]);
             }
-            
             previous = fodertidspunkter[i];
         }
 
-        // console.log("Næste tid er: " + fodertidspunkter[0]);
+        // Hvis funktionen når hertil betyder det at det første fodertidspunkt (fodertidspunkter[0]) er det næste.
         return time30ToTime(fodertidspunkter[0]);
     }
 
     
-
+    // Denne funktion redigeringsmodal med data omkring en specifik foderautomat.
+    // Den funktion bliver aktiveret når brugeren trykker på en foderautomati UI.
     function showEdit(id) {
         var count = Object.keys(data["foderautomater"]).length;
         var fodertidspunkter = document.getElementById('fodertidspunkter');
         fodertidspunkter.innerHTML = "";
-
+        // Finder det givet id i listen af foderautomater.
         for(var i=0;i<count;i++){
             //console.log(jsonObj.myObject[i]);
             var obj = data["foderautomater"][i];
 
             if(obj.id == id) {
+                // Funderautomaten er fundet.
+                // Rediger i html elementerne så de passer med foderautomatens data.
                 $('#deleteID').val(id);
                 $('#deleteText').html("Er du sikker på at du vil slette foderautomat ID-" + id + "?")
                 $('#editModalLabel').html("ID-" + id);
@@ -430,13 +439,10 @@
                 $("#tidspunktKnap2").attr('onclick', 'addTime(' + id + ');');
                 $("#manualInputID").val(id);
                 
-
-
-                // Fodertidspunkter
+                // Tæller antal fodertidspunkter
                 var feedCount = Object.keys(obj["f"]).length;
-                // console.log("feedCount: " + feedCount);
-                // console.log(obj["fodertidspunkter"]);
 
+                // Viser den rigtige tilføj knap afhægig af om der er er mere eller mindre end 0.
                 if(feedCount > 0) {
                     // Hver der er mere end 0
                     $('#tidspunktKnap2').css('display', 'none');
@@ -449,13 +455,15 @@
 
                 var cell = "";
                 
+                // Laver en lykke med alle fodertidspunkter og laver et HTML element med hvert fodertidspunkt.
+                // Placerer hver element i #fodertidspunkter.
                 for(var x = 0; x < feedCount; x++){
                     //console.log("i: " + x);
                     var time = time30ToTime(obj["f"][x]);
 
                     cell = '<div class="form-row mb-3">\
                                 <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
-                                    <input type="text" class="form-control fodertidspunkt" onkeydown="return false" onfocus="blur()" style="width:80px;" value="' + time + '">\
+                                    <input type="text" class="form-control fodertidspunkt" value="' + time + '" onfocus="blur()" style="width:80px;" onkeydown="return false">\
                                     <span class="input-group-addon">\
                                         <span class="glyphicon glyphicon-envelope"></span>\
                                     </span>\
@@ -465,43 +473,61 @@
                     fodertidspunkter.innerHTML+=cell;
                     
                 }
+                // Aktiverer de nye clockpicker ure:
                 $('.clockpicker').clockpicker()
                 .find('input').change(function(){
                     // TODO: time changed
                     console.log(this.value);
                 });
 
+                // Viser editModal:
                 $('#editModal').modal('show');
             }
         }        
     }
 
+    // Funktionen er ansvarlig for at slette et fodertidspunkt når brugeren klikker på X'et ud for en tid.
     function deleteTime(id, index) {
+        // Funktionen modtager et foderautomat ID og et index for dens fodertidspunkt som skal slettes.
         var count = Object.keys(data["foderautomater"]).length;
         var fodertidspunkter = document.getElementById('fodertidspunkter');
-        // fodertidspunkter.innerHTML = "";
-
+        // Finder fodertidspunktet i en for-lykke.
         for(var i=0;i<count;i++){
             //console.log(jsonObj.myObject[i]);
             var obj = data["foderautomater"][i];
 
             if(obj.id == id) {
+                // ID er fundet.
+
+                obj.f = [];
+
+                // Finder alle fodertidspunkters input value og konverterer det til time30
                 $('#fodertidspunkter').find('input').each(function () {
                     console.log(this.value); // "this" is the current element in the loop
                     obj.f.push(timeToTime30(this.value));
                 });
-                // https://www.w3schools.com/js/js_array_sort.asp
-                obj.f.sort(function(a, b){return a - b});
+                console.log(obj.f);
 
-                obj.f = removeDuplicates(obj.f);
-
-                // Fjern fodertidspunkt 
+                // Fjerner fodertidspunktet 
                 obj.f.splice(index, 1);
 
+                // Sorterer nuværende fodertidspunkter så alt ser godt ud i UI
+                
+                // https://www.w3schools.com/js/js_array_sort.asp
+                // Sorterer fodertidspunkter så de er i fra laveste til højeste time30.
+                obj.f.sort(function(a, b){return a - b});
+
+                // Fjerner eventuelle dubletter.
+                obj.f = removeDuplicates(obj.f);
+
+                
+
+                // Tilføj nuværende fodertidspunkter til data
                 data["foderautomater"][i] = obj;
 
                 // Nuværende tidspunkter er tilføjet!
-
+                // Viser nuværende fodertidspunkter igen:
+                // Kode er taget fra showEdit().
                 var feedCount = Object.keys(obj["f"]).length;
                 console.log("feedCount: " + feedCount);
 
@@ -515,8 +541,8 @@
                     $('#tidspunktKnap').css('display', 'none');
                 }
 
-                fodertidspunkter.innerHTML = "";
-                
+                fodertidspunkter.innerHTML = ""; // Fjerner alle fodertidspunkter
+                // Tilføjer dem igen, men hvor den slettede ikke er der:
                 for(var x = 0; x < feedCount; x++){
                     //console.log("i: " + x);
                     var time = time30ToTime(obj["f"][x]);
@@ -535,26 +561,37 @@
                 }
             }
         }
+        // Aktiver alle fodertidspunkter i clockpicker.
+        $('.clockpicker').clockpicker()
+        .find('input').change(function(){
+            // TODO: time changed
+            console.log(this.value);
+        });
     }
 
+    // Funktionen søger for at tilføje et fodertidspunkt når brugeren trykker tilføj.
     function addTime(id) {
         var count = Object.keys(data["foderautomater"]).length;
         var fodertidspunkter = document.getElementById('fodertidspunkter');
         // fodertidspunkter.innerHTML = "";
         $('#tidspunktKnap2').css('display', 'none');
         $('#tidspunktKnap').css('display', '');
-
+        // Finder foderautomat.
         for(var i=0;i<count;i++){
             //console.log(jsonObj.myObject[i]);
             var obj = data["foderautomater"][i];
 
             if(obj.id == id) {
-                console.log("ID fundet!");
+                // ID er fundet.
+                // Sorterer først nuværende fodertidspunkter så alt ser godt ud i UI
+                obj.f = [];
+                // Finder alle fodertidspunkters input value og konverterer det til time30
                 $('#fodertidspunkter').find('input').each(function () {
                     console.log(this.value); // "this" is the current element in the loop
                     obj.f.push(timeToTime30(this.value));
                 });
                 // https://www.w3schools.com/js/js_array_sort.asp
+                // Sorterer fodertidspunkter så de er i fra laveste til højeste time30.
                 obj.f.sort(function(a, b){return a - b});
 
                 obj.f = removeDuplicates(obj.f);
@@ -562,7 +599,8 @@
                 data["foderautomater"][i] = obj;
 
                 // Nuværende tidspunkter er tilføjet!
-
+                // Viser nuværende fodertidspunkter igen:
+                // Kode er taget fra showEdit().
                 var feedCount = Object.keys(obj["f"]).length;
                 console.log("feedCount: " + feedCount);
 
@@ -576,8 +614,8 @@
                     $('#tidspunktKnap').css('display', 'none');
                 }
 
-                fodertidspunkter.innerHTML = "";
-                
+                fodertidspunkter.innerHTML = ""; // Fjerner alle fodertidspunkter
+                // Tilføjer dem igen, men hvor den slettede ikke er der:
                 for(var x = 0; x < feedCount; x++){
                     //console.log("i: " + x);
                     var time = time30ToTime(obj["f"][x]);
@@ -598,6 +636,7 @@
 
             }
         }
+        // Tilføjer et nyt fodertidspunkt:
         
         var cell = '<div class="form-row mb-3">\
                     <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
@@ -610,6 +649,7 @@
                 </div>';
         fodertidspunkter.innerHTML+=cell;
         $('#editModal').animate({ scrollTop: $(document).height() }, 500); // Scroll til bunden af modal.
+        // Aktiver alle fodertidspunkter i clockpicker.
         $('.clockpicker').clockpicker()
         .find('input').change(function(){
             // TODO: time changed
@@ -617,45 +657,57 @@
         });
     }
 
+    // Funktionen viser foderautomat JSON data som er modtaget fra ESP på forsiden.
     function showData() {
         var count = Object.keys(data["foderautomater"]).length;
 
         var table= document.getElementById('table');
+        // Tilføj/nulstil overskrifter:
         table.innerHTML = '<tr><th>Hest</th><th class="next">Næste fodring</th><th class="doseringer">Doseringer pr. fodring</th><th class="fodringer">Fodringer pr. dag</th></tr>';
+        // Gå alle foderautomater igennem:
         for(var i=0;i<count;i++){
-            //console.log(jsonObj.myObject[i]);
             var obj= data["foderautomater"][i];
             var feedCount = String(obj["f"].length);
-            // console.log(feedCount);
-            // var cell = "<div class='cell'>" + obj.id + "<br>" + obj.n + "<br>" + feedCount + "</div>"
-            if(obj.n == "") {
+
+            if(obj.n == "") { // Hvis foderautomat ikke har en kaldenavn. Lav dens kaldenavn dens ID.
                 obj.n = "ID-" + obj.id;
             }
             if(obj["f"].length > 0) {
-                // Hver der er mere end 0
+                // Hver der er mere end 0 fodertidspunkter.
+                // Hvis næste fodertidspunkt
                 $('#tidspunktKnap2').css('display', 'none');
                 $('#tidspunktKnap').css('display', '');
-                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "<span class='tdid'>ID-" + obj.id + "</span></td><td class='next'>" + nextFeed(obj["f"]) + "</td><td class='doseringer'>" + obj.d + "</td><td class='fodringer'>" + feedCount + "</td"
+                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "\
+                    <span class='tdid'>ID-" + obj.id + "</span></td>\
+                    <td class='next'>" + nextFeed(obj["f"]) + "</td>\
+                    <td class='doseringer'>" + obj.d + "</td>\
+                    <td class='fodringer'>" + feedCount + "</td>"
             } else {
                 // Hver der er 0
+                // Hvis IKKE næste fodertidspunkt.
                 $('#tidspunktKnap2').css('display', '');
                 $('#tidspunktKnap').css('display', 'none');
-                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "<span class='tdid'>ID-" + obj.id + " </span></td><td class='next'></td><td class='doseringer'>" + obj.d + "</td><td class='fodringer'>" + feedCount + "</td"
+                var cell = "<td onclick='showEdit(" + obj.id + ")'>" + obj.n + "\
+                    <span class='tdid'>ID-" + obj.id + " </span></td>\
+                    <td class='next'></td>\
+                    <td class='doseringer'>" + obj.d + "</td>\
+                    <td class='fodringer'>" + feedCount + "</td>"
             }
             table.innerHTML+=cell;
         }
     }
 
+    // Funktionen tager et time30 og konverter det til læseligt 00:00 format.
     function time30ToTime(time30) {
-        if(time30 % 2 == 0) { // Hvis den halve time er lige.
-            if(time30 / 2 > 9) {
+        if(time30 % 2 == 0) { // Hvis time30 er hel. altså ikke :30
+            if((time30 / 2) > 9) { // Hvis der i hele timer er mere end 9
                 return ((time30) / 2) + ":00";
             } else {
                 return "0" + ((time30) / 2) + ":00";
             }
         
         } else { // Hvis den er ulige.
-            if(  ((time30 - 1) / 2) > 9) {
+            if(((time30 - 1) / 2) > 9) { // Hvis der i hele timer er mere end 9
                 return ((time30 -1) / 2) + ":30";
             } else {
                 return "0" + ((time30 -1) / 2) + ":30";
@@ -663,72 +715,85 @@
         }
     }
 
+    // Funktionen tager et læseligt 00:00 format og konverter det til time30.
+    // Funktionen kan også findes i Arduinoens kode.
     function timeToTime30(time) {
         time = time.split(":");
-        
-        var time30 = time[0] * 2;
-        if(time[1] >= 30) {
-            time30++;
+        // time er nu et array bestående af [0]timer og [1]minutter.
+        var time30 = time[0] * 2; // Ganger timer med 2 for at få halve timer.
+        if(time[1] >= 30) { // Hvis minutter er større end eller lig 30.
+            time30++; // Lig en til.
         }
-        console.log(time30);
         return time30;
     }
 
+    // Fjerner dubletter i et array og returnerer alle unikke tal. Bruges til time30 array.
     function removeDuplicates(arr) {
         var unique = [];
         arr.forEach(element => {
-            if (!unique.includes(element)) {
-                unique.push(element);
+            if (!unique.includes(element)) { // Hvis ikke unik listen indeholder elementen.
+                unique.push(element); // Tilføj elementet.
             }
         });
         return unique;
     }
-
+    // Funktionen kører hele tiden.
+    // Den viser den modtaget tid fra ESP'en i toppen af hjemmesiden og opdateres hvert sekund.
     function startTime() {
         const today = new Date(timeNow()*1000);
         let h = today.getHours();
         let m = today.getMinutes();
         let s = today.getSeconds();
         if (m < 10) {m = "0" + m};
-        document.getElementById('clock').innerHTML =  h + ":" + m;
-        setTimeout(startTime, 1000);
+        document.getElementById('clock').innerHTML =  h + ":" + m; // Opdater HTML elementet.
+        setTimeout(startTime, 1000); // Kør igen efter et sekund.
     }
 
+
+    // Funktionen sørger for at sende data omkring en redigeret foderautomat.
     function sendEditData(id) {
         var count = Object.keys(data["foderautomater"]).length;
+        // Find foderautomat ud fra given ID.
         for(var i=0;i<count;i++){
             //console.log(jsonObj.myObject[i]);
             var obj = data["foderautomater"][i];
 
             if(obj.id == id) {
-                
+                // ID er fundet
+                // Tag value fra edit modal og lig det ind i JSON objektet for foderautomaten.
                 obj.n = $('#editNavn').val();
                 obj.d = $('#editDoseringer').val();
                 obj.f = [];
-
+                // Gør dette for fodertidspunkter.
+                // Finder alle fodertidspunkters input value og konverterer det til time30
                 $('#fodertidspunkter').find('input').each(function () {
                     console.log(this.value); // "this" is the current element in the loop
                     obj.f.push(timeToTime30(this.value));
                 });
                 // https://www.w3schools.com/js/js_array_sort.asp
+                // Sorterer fodertidspunkter lav til høj.
                 obj.f.sort(function(a, b){return a - b});
 
+                // Fjerner dubletter.
                 obj.f = removeDuplicates(obj.f);
                 
-
+                // Bruger jQuery Ajax til at sende data til ESP'en asynkront.
                 $.ajax({
                     type: "POST",
                     url: "/edit",
-                    data: JSON.stringify(obj),
+                    data: JSON.stringify(obj), // Konverter JSON til en String.
                     contentType: "application/json",
-                    dataType: "text",
-                    success: function(data){
-                        getData();
+                    dataType: "text", // Forvent i respons i tekst
+                    success: function(data){ // Hvis det lykkedes.
+                        getData(); // Hent ny data.
                         $(".errormessage").html("");
-                        $(".sucessmessage").html("Foderautomat er opdateret!");
-                        setTimeout($(".sucessmessage").html(""), 5000);
+                        // Vis at det lykkedes.
+                        $(".sucessmessage").html("Foderautomat er opdateret!"); 
+                        // Fjern beskeden igen efter 5 sekunder.
+                        setTimeout($(".sucessmessage").html(""), 5000); 
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
+                        // Hvis det fejlede. Scroll til toppen. Vis fejlmeddelselsen
                         $('#editModal').animate({ scrollTop: 0 }, 500);
                         $(".sucessmessage").html("");
                         $(".errormessage").html("Der opstod en fejl:<br>" + thrownError);
@@ -739,9 +804,13 @@
         }
     }
 
+    // Funktion som sender den nuværende tid basseret på brugerens telefon til ESP'en for at opdatere RTC'en.
     function updateTime() {
-        let time = Math.floor(new Date().getTime()/1000.0 + 7200)
+        // Konverterer fra millisekunder til sekunder og ligger 3 timer til for at få dansk tidszone.
+        // JavaScript tager altid UTC timezone.
+        let time = Math.floor(new Date().getTime()/1000.0 + 7200) 
 
+        // Laver JSON objekt.
         timedata = {
             "time":time
         }
@@ -749,43 +818,12 @@
         console.log(timedata);
         console.log(timedata["time"]);
 
+        // Sender den nye tid til ESP'en.
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/updatetime", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(timedata));
     }
-
-    //check if the number is even
-    // if(x % 2 == 0) {
-    //     console.log("even");
-    //     cell = '<div class="form-row">\
-    //                     <div class="clockpicker" data-placement="right" data-align="bottom" data-autoclose="true">\
-    //                         <input type="text" class="form-control" onkeydown="return false" onfocus="blur()" name="fodertidspunkter[]" style="width:66px;" value="' + time + '">\
-    //                         <span class="input-group-addon">\
-    //                             <span class="glyphicon glyphicon-envelope"></span>\
-    //                         </span>\
-    //                     </div>';
-    
-    // } else {
-    //     console.log("uneven")
-    //     cell += '<div class="clockpicker" data-placement="left" data-align="bottom" data-autoclose="true">\
-    //                     <input type="text" class="form-control" onkeydown="return false" onfocus="blur()" name="fodertidspunkter[]" style="width:66px;" value="' + time + '">\
-    //                     <span class="input-group-addon">\
-    //                         <span class="glyphicon glyphicon-envelope"></span>\
-    //                     </span>\
-    //                 </div>\
-    //             </div>';
-    //     fodertidspunkter.innerHTML+=cell;
-    // }
-    // function sendData() {
-
-    //     var xhr = new XMLHttpRequest();
-    //     xhr.open("POST", "/post2", true);
-    //     xhr.setRequestHeader('Content-Type', 'application/json');
-    //     xhr.send(JSON.stringify({
-    //         data: data
-    //     }));
-    // }
 
 </script>
 </html>

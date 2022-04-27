@@ -92,18 +92,18 @@
         }
         #tidspunktKnap {
             position: fixed;
-            top: 364px;;
+            top: 316px;;
             margin-left: 3rem!important;
         }
         @media screen and (min-width: 576px) {
             #tidspunktKnap {
-                top: 384px;
+                top: 336px;
                 margin-left: 6rem!important;
             }
         }
         @media screen and (min-width: 768px) {
             #tidspunktKnap {
-                top: 298px;
+                top: 250px;
                 margin-left: 6rem!important;
             }
         }
@@ -237,12 +237,6 @@
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <!-- <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">ID-1234</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div> -->
                     <div class="modal-body">
                         <h3 id="deleteText"></h3>
                         <span class="errormessage"></span>
@@ -276,8 +270,7 @@
 
     // Når en form bliver submitted. Stop den og gør det asynkront med jQuery Ajax i stedet.
     $("form").on("submit", function (e) {
-        e.preventDefault();
-
+        e.preventDefault(); // Stop afsendelse af data standard.
         var dataString = $(this).serialize(); // serialize form-data
         // Lav POST request med jQuery Ajax.
         $.ajax({
@@ -297,7 +290,6 @@
             }
         });
 
-
     });
     // Ved opsætning. Indstil alle clockpicker ure.
     $('.clockpicker').clockpicker()
@@ -312,7 +304,7 @@
             {
                 "id": "1234",
                 "n": "Valoo",
-                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],
+                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],
                 "d": 1
             },
             {
@@ -392,27 +384,28 @@
         var feedCount = Object.keys(fodertidspunkter).length;
 
         var previous;
+
+        var tmpTimeNow = new Date(timeNow()*1000);
+        // Konverterer den nuværende tid til time30 format.
+        hourNow = tmpTimeNow.getHours();
+        minutesNow = "0" + tmpTimeNow.getMinutes();
+        minutesNow = minutesNow.substr(-2); // Tager de sidste to chars i listen.
+        time30Now = hourNow * 2;
+        if(minutesNow >= 30) {
+            time30Now++;
+        }
+        // Tid er konverteret nu.
+
         // Går alle fodertidspunkter igennem for en foderautomat.
         for(var i = 0; i < feedCount; i++){
-            var tmpTimeNow = new Date(timeNow()*1000);
-            // Konverterer den nuværende tid til time30 format.
-            hourNow = tmpTimeNow.getHours();
-            minutesNow = "0" + tmpTimeNow.getMinutes();
-            minutesNow = minutesNow.substr(-2);
-
-            time30Now = hourNow * 2;
-            if(minutesNow >= 30) {
-                time30Now++;
-            }
-            // Tid er konverteret nu.
-
-            // Tjekker om fodertidspunkter[i] er større end fodertidspunkter[i - 1] og om fodertidspunkter[i] er større end time30Now.
+            // Tjekker om fodertidspunkter[i] er større end fodertidspunkter[i - 1] 
+            // og om fodertidspunkter[i] er større end time30Now.
             if(fodertidspunkter[i] > previous && fodertidspunkter[i] > time30Now) {
-                // Hvis disse betingelser er sande betyder det at det næste fodertidspunkt er fodertidspunkter[i].
+                // Hvis disse betingelser er sande betyder det at det næste -
+                // fodertidspunkt er fodertidspunkter[i].
                 // Bruger time30ToTime for at lave time30 til et læseligt format 00:00.
                 return time30ToTime(fodertidspunkter[i]);
             }
-            
             previous = fodertidspunkter[i];
         }
 
@@ -706,15 +699,15 @@
 
     // Funktionen tager et time30 og konverter det til læseligt 00:00 format.
     function time30ToTime(time30) {
-        if(time30 % 2 == 0) { // Hvis den halve time er lige.
-            if(time30 / 2 > 9) {
+        if(time30 % 2 == 0) { // Hvis time30 er hel. altså ikke :30
+            if((time30 / 2) > 9) { // Hvis der i hele timer er mere end 9
                 return ((time30) / 2) + ":00";
             } else {
                 return "0" + ((time30) / 2) + ":00";
             }
         
         } else { // Hvis den er ulige.
-            if(  ((time30 - 1) / 2) > 9) {
+            if(((time30 - 1) / 2) > 9) { // Hvis der i hele timer er mere end 9
                 return ((time30 -1) / 2) + ":30";
             } else {
                 return "0" + ((time30 -1) / 2) + ":30";
@@ -727,12 +720,10 @@
     function timeToTime30(time) {
         time = time.split(":");
         // time er nu et array bestående af [0]timer og [1]minutter.
-        
-        var time30 = time[0] * 2; // Ganger timer med minutter.
+        var time30 = time[0] * 2; // Ganger timer med 2 for at få halve timer.
         if(time[1] >= 30) { // Hvis minutter er større end eller lig 30.
             time30++; // Lig en til.
         }
-        console.log(time30);
         return time30;
     }
 
@@ -790,14 +781,16 @@
                 $.ajax({
                     type: "POST",
                     url: "/edit",
-                    data: JSON.stringify(obj),
+                    data: JSON.stringify(obj), // Konverter JSON til en String.
                     contentType: "application/json",
-                    dataType: "text",
+                    dataType: "text", // Forvent i respons i tekst
                     success: function(data){ // Hvis det lykkedes.
                         getData(); // Hent ny data.
                         $(".errormessage").html("");
-                        $(".sucessmessage").html("Foderautomat er opdateret!"); // Hvis at det lykkedes.
-                        setTimeout($(".sucessmessage").html(""), 5000); // Fjern beskeden igen efter 5 sekunder.
+                        // Vis at det lykkedes.
+                        $(".sucessmessage").html("Foderautomat er opdateret!"); 
+                        // Fjern beskeden igen efter 5 sekunder.
+                        setTimeout($(".sucessmessage").html(""), 5000); 
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         // Hvis det fejlede. Scroll til toppen. Vis fejlmeddelselsen

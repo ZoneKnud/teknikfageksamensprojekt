@@ -297,51 +297,10 @@
 		console.log(this.value);
 	});
 
-    var data = 
-    {
-        "tid":1649527109,
-        "foderautomater": [
-            {
-                "id": "1234",
-                "n": "Valoo",
-                "f": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],
-                "d": 1
-            },
-            {
-                "id": "237593",
-                "n": "Mac attack",
-                "f": [11,12,13,14,15,16,17,18,19,20],
-                "d": 1
-            },
-            {
-                "id": "238763",
-                "n": "Mads fra Mads og Mikkel",
-                "f": [11,12,13,14,15,16,17,18,19,20],
-                "d": 1
-            },
-            {
-                "id": "198242835",
-                "n": "Skovkrogens bandine",
-                "f": [46],
-                "d": 2
-            },
-            {
-                "id": "8355",
-                "n": "Nørrelundgårds Don Copy Cat",
-                "f": [],
-                "d": 2
-            }
-        ]
-    };
+    var data = {};
 
-    // Til debug:::
-    var tidModtaget = Date.now()/1000;
-    // var tidModtaget = data["tid"];
-    var tidVedModtaget = Math.floor(Date.now() / 1000);
-    // var tidModtaget = 0;
-    // var tidVedModtaget = 0;
-
-    // var data = %JSONPLACEHOLDER%;
+    var tidModtaget;
+    var tidVedModtaget;;
 
     // Funktionen indlæser JSON data fra ESP'en
     function getData(id) {
@@ -400,7 +359,7 @@
         for(var i = 0; i < feedCount; i++){
             // Tjekker om fodertidspunkter[i] er større end fodertidspunkter[i - 1] 
             // og om fodertidspunkter[i] er større end time30Now.
-            if(fodertidspunkter[i] > previous && fodertidspunkter[i] > time30Now) {
+            if(time30Now > previous && fodertidspunkter[i] > time30Now) {
                 // Hvis disse betingelser er sande betyder det at det næste -
                 // fodertidspunkt er fodertidspunkter[i].
                 // Bruger time30ToTime for at lave time30 til et læseligt format 00:00.
@@ -827,5 +786,3 @@
 
 </script>
 </html>
-
-
